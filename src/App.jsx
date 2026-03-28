@@ -11,9 +11,16 @@ const HEART_PATH = "M200 278 C200 278 50 188 50 104 C50 54 84 20 130 20 C161 20 
 
 function rand(a, b) { return Math.random() * (b - a) + a; }
 
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  return _audioCtx;
+}
+
 function playSound(type) {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
     const play = (freq, startTime, duration, vol = 0.28, wave = "sine") => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
