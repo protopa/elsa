@@ -11,6 +11,32 @@ const HEART_PATH = "M200 278 C200 278 50 188 50 104 C50 54 84 20 130 20 C161 20 
 
 function rand(a, b) { return Math.random() * (b - a) + a; }
 
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const play = (freq, startTime, duration, vol = 0.28, wave = "sine") => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = wave; osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol, ctx.currentTime + startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+      osc.start(ctx.currentTime + startTime);
+      osc.stop(ctx.currentTime + startTime + duration);
+    };
+    if (type === "good") {
+      play(660, 0,    0.12);
+      play(880, 0.09, 0.18);
+      play(1100,0.2,  0.22);
+    } else if (type === "bad") {
+      play(220, 0, 0.25, 0.18, "triangle");
+      play(180, 0.12, 0.22, 0.12, "triangle");
+    } else if (type === "win") {
+      [523, 659, 784, 1047, 1319].forEach((f, i) => play(f, i * 0.13, 0.35, 0.3));
+    }
+  } catch (_) {}
+}
+
 function HeartMeter({ count }) {
   const pct = Math.min(1, count / GOAL);
   const HEART_BOT = 278;
@@ -201,7 +227,7 @@ export default function PrincessCatcher() {
   }, [won, gameArea]);
 
   useEffect(() => {
-    if (count >= GOAL && !won) setWon(true);
+    if (count >= GOAL && !won) { setWon(true); playSound("win"); }
     countRef.current = count;
   }, [count, won]);
 
@@ -214,8 +240,10 @@ export default function PrincessCatcher() {
     if (kind === "good") {
       setCount(c => Math.min(GOAL, c + 1));
       setFloats(p => [...p, { id: fid, label: "+1 👸", x: fx, y: fy, good: true }]);
+      playSound("good");
     } else {
       setFloats(p => [...p, { id: fid, label: "💨 nope!", x: fx, y: fy, good: false }]);
+      playSound("bad");
     }
     setTimeout(() => setFloats(p => p.filter(f => f.id !== fid)), 1000);
   }, [gameArea]);
@@ -292,7 +320,7 @@ export default function PrincessCatcher() {
       }}>
         <span style={{ color: PINK }}>👸 +1</span>
         <span style={{ color: "#eee" }}>|</span>
-        <span>💔 ❌ 💩 = -3</span>
+        <span style={{ color: "#bbb" }}>💔 ❌ 💩 avoid!</span>
       </div>
     </div>
   );
