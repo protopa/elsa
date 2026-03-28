@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
-const GOAL = 100;
+const GOAL = 20;
 const PINK = "#FA8FD4";
 const CYAN = "#27D3F5";
 const GOOD_ITEMS = ["👸", "👸", "👸", "🧚", "🌟", "💫", "⭐", "🌸", "❤️", "❤️", "💖", "💝"];
@@ -36,7 +36,7 @@ function HeartMeter({ count }) {
       <text x="200" y="152" textAnchor="middle" fontSize="54" fontWeight="700"
         fontFamily="'Fredoka One', cursive" fill={textCol}>{count}</text>
       <text x="200" y="186" textAnchor="middle" fontSize="17"
-        fontFamily="'Fredoka One', cursive" fill={subCol}>/ {GOAL} princesses</text>
+        fontFamily="'Fredoka One', cursive" fill={subCol}>/ {GOAL} 👸</text>
       <text x="200" y="68" textAnchor="middle" fontSize="22"
         fontFamily="inherit" opacity={pct > 0.82 ? 1 : 0.25}>👑</text>
     </svg>
@@ -110,7 +110,7 @@ function Celebration({ onPlayAgain }) {
           fontSize: "clamp(28px, 8vw, 50px)", margin: "16px 0 8px",
           background: `linear-gradient(135deg, ${PINK} 0%, ${CYAN} 100%)`,
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-        }}>100 Princesses Saved!</h1>
+        }}>20 Princesses Saved!</h1>
         <p style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20, color: CYAN, margin: "0 0 8px" }}>
           🌈 You're the greatest royal hero! 🌈
         </p>
@@ -187,13 +187,13 @@ export default function PrincessCatcher() {
       const isGood = Math.random() > 0.28;
       const pool = isGood ? GOOD_ITEMS : BAD_ITEMS;
       const emoji = pool[Math.floor(Math.random() * pool.length)];
-      setItems(p => [...p.slice(-20), {
+      setItems(p => [...p.slice(-4), {
         id: itemId.current++,
         x: rand(45, gameArea.w - 45),
-        speed: rand(1.8 + lv * 0.18, 3.2 + lv * 0.28),
+        speed: rand(0.8 + lv * 0.08, 1.6 + lv * 0.10),
         emoji, kind: isGood ? "good" : "bad",
       }]);
-      const delay = rand(Math.max(480, 1600 - lv * 100), Math.max(850, 2500 - lv * 140));
+      const delay = rand(Math.max(900, 2200 - lv * 80), Math.max(1400, 3200 - lv * 100));
       timeout = setTimeout(spawn, delay);
     };
     timeout = setTimeout(spawn, 250);
@@ -215,10 +215,7 @@ export default function PrincessCatcher() {
       setCount(c => Math.min(GOAL, c + 1));
       setFloats(p => [...p, { id: fid, label: "+1 👸", x: fx, y: fy, good: true }]);
     } else {
-      setCount(c => Math.max(0, c - 3));
-      setFloats(p => [...p, { id: fid, label: "-3 💔", x: fx, y: fy, good: false }]);
-      setShaking(true);
-      setTimeout(() => setShaking(false), 420);
+      setFloats(p => [...p, { id: fid, label: "💨 nope!", x: fx, y: fy, good: false }]);
     }
     setTimeout(() => setFloats(p => p.filter(f => f.id !== fid)), 1000);
   }, [gameArea]);
