@@ -21,25 +21,53 @@ function getAudioCtx() {
 function playSound(type) {
   try {
     const ctx = getAudioCtx();
-    const play = (freq, startTime, duration, vol = 0.28, wave = "sine") => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = wave; osc.frequency.value = freq;
-      gain.gain.setValueAtTime(vol, ctx.currentTime + startTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
-      osc.start(ctx.currentTime + startTime);
-      osc.stop(ctx.currentTime + startTime + duration);
-    };
+    const now = ctx.currentTime;
+
     if (type === "good") {
-      play(660, 0,    0.12);
-      play(880, 0.09, 0.18);
-      play(1100,0.2,  0.22);
+      // Otter: 3 quick ascending chirps
+      [0, 0.16, 0.30].forEach((delay, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(750 + i * 60, now + delay);
+        osc.frequency.exponentialRampToValueAtTime(1500 + i * 80, now + delay + 0.11);
+        gain.gain.setValueAtTime(0.32, now + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.13);
+        osc.start(now + delay);
+        osc.stop(now + delay + 0.14);
+      });
+
     } else if (type === "bad") {
-      play(220, 0, 0.25, 0.18, "triangle");
-      play(180, 0.12, 0.22, 0.12, "triangle");
+      // Fart: bandpass-filtered noise with descending pitch
+      const dur = 0.48;
+      const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(220, now);
+      filter.frequency.exponentialRampToValueAtTime(55, now + dur);
+      filter.Q.value = 1.2;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(2.2, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      src.start(now); src.stop(now + dur);
+
     } else if (type === "win") {
-      [523, 659, 784, 1047, 1319].forEach((f, i) => play(f, i * 0.13, 0.35, 0.3));
+      [523, 659, 784, 1047, 1319].forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = "sine"; osc.frequency.value = f;
+        gain.gain.setValueAtTime(0.3, now + i * 0.13);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.13 + 0.35);
+        osc.start(now + i * 0.13); osc.stop(now + i * 0.13 + 0.35);
+      });
     }
   } catch (_) {}
 }
