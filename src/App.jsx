@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 const GOAL = 100;
 const PINK = "#FA8FD4";
 const CYAN = "#27D3F5";
-const GOOD_ITEMS = ["👸", "👸", "👸", "🧚", "🌟", "💫", "⭐", "🌸"];
+const GOOD_ITEMS = ["👸", "👸", "👸", "🧚", "🌟", "💫", "⭐", "🌸", "❤️", "❤️", "💖", "💝"];
 const BAD_ITEMS  = ["💔", "❌", "💩"];
 const PARTY_ITEMS = ["👸", "🪿", "🌈", "✨", "🦄", "💖", "🌸", "⭐", "🎊", "🎉", "🪿", "🌈", "🪿"];
 
@@ -64,7 +64,7 @@ function Item({ item, onCatch, gameH }) {
   return (
     <div onClick={() => onCatch(id, kind)} style={{
       position: "absolute", left: x, top: y,
-      transform: "translateX(-50%)", fontSize: "46px",
+      transform: "translateX(-50%)", fontSize: "69px",
       cursor: "pointer", userSelect: "none", WebkitUserSelect: "none",
       zIndex: 30, WebkitTapHighlightColor: "transparent",
       filter: kind === "good"
@@ -263,6 +263,9 @@ export default function PrincessCatcher() {
           WebkitTextFillColor: "transparent",
           animation: "bob 2.5s ease-in-out infinite, shimmer 3s ease-in-out infinite",
         }}>✨ ELSA ✨</h1>
+        <p style={{ margin: "0 0 2px", fontSize: 14, color: `${PINK}cc`, fontFamily: "'Fredoka One', cursive" }}>
+          Otter's First Game
+        </p>
         <p style={{ margin: 0, fontSize: 12, color: `${CYAN}dd`, fontFamily: "'Fredoka One', cursive" }}>
           Tap princesses! Avoid 💔 ❌ 💩 — they cost 3 points!
         </p>
